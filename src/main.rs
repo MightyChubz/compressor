@@ -2,6 +2,8 @@
 // compression as a whole. It is based other simple compression algorithms that can be used to encode
 // files and folders.
 
+use std::collections::HashMap;
+
 /// This is a short hand name since the usage of `Option<Box<Node>>` is used quite often.
 type LNode = Option<Box<Node>>;
 
@@ -20,6 +22,18 @@ struct Node {
 }
 
 impl Node {}
+
+/// The root node will take the responsibility of holding the sum of the leaf nodes that contains the
+/// characters. This node will be made to be easily switched out with another when needed.
+///
+/// # Note
+/// This naming scheme will be subject to change in the future when the implementation is more efficient
+/// and more concrete.
+struct RootNode {
+    pub left: LNode,
+    pub right: LNode,
+    pub sum: u64,
+}
 
 /// The huffman tree is going to be responsible not only for the encoding and decoding of characters
 /// but also count as the root of the tree. The root node will change as the input file is read and
@@ -45,10 +59,40 @@ impl Node {}
 /// println!("Decoded: {}", original_input);
 ///
 /// ```
-struct HuffmanTree {}
+struct HuffmanTree {
+    pub input: String,
+    pub root: Option<Box<RootNode>>,
+}
+
+impl HuffmanTree {
+    /// Create a new Huffman tree.
+    pub fn new(input_file: &str) -> Self {
+        Self {
+            input: input_file.to_string(),
+            root: None,
+        }
+    }
+
+    /// Gets the frequencies of all characters for the priority queue of the Huffman tree.
+    pub fn get_frequencies(&self) -> HashMap<char, usize> {
+        let mut frequencies: HashMap<char, usize> = HashMap::new();
+        for character in self.input.chars() {
+            let entry = frequencies.entry(character).or_insert(0);
+            *entry += 1;
+        }
+
+        frequencies
+    }
+}
 
 /// The main entry point for this program.
 fn main() {
-    // TODO: Take in commands from the user and run them accordingly.
-    // Implement a form of a binary tree if one doesn't exist.
+    // This is the input string that will be used to test the Huffman tree.
+    let input = "This is the input string and test for the huffman tree";
+
+    let huffman = HuffmanTree::new(input);
+    let freq = huffman.get_frequencies();
+    println!("{:#?}", freq);
+
+    println!("{}", 0b010);
 }
